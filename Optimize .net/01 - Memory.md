@@ -62,19 +62,46 @@ Today, most of the CPU instructions that don't involve memory access or very com
 
 Let's scale things to understand their impact better:
 
-* We pretend that **one CPU Cycle** is taking **1 second** (in reality it's 0.4ns).
-* A **Level 1** Cache access would be then **2 seconds** (in reality 0.9ns).
-* A **Level 2** Cache access would be **7 seconds** (2.8ns).
-* A **Level 3** Cache (assuming you have L3) access would be **1 minutes** (28ns).
-* **Main memory** access would be **4 minutes** (~100ns).
+| Access type         | Real duration | Scaled duration |
+|---------------------|---------------|-----------------|
+| One CPU Cycle       | 0.4ns         | 1 second        |
+| Cache L1 Access     | 0.9ns         | 2 seconds       |
+| Cache L2 Access     | 2.8ns         | 7 seconds       |
+| Cache L3 Access     | 28ns          | 1 minute        |
+| Main memory Acccess | ~100ns        | 4 minutes       |
 
-Compared to a CPU cycle, L1 access is 2x slower, L2 access is 7x, L3 access is 60x and memory access is **250x** slower!
+
+Compared to a CPU cycle:
+
+* L1 access is 2x slower
+* L2 access is 7x
+* L3 access is 60x
+* Memory access is **250x** slower!
 
 So yes, you can understand that the more you are memory friendly (we'll explain roughly what it implies) the better you'll have chances to hit the CPU cache, getting you significant performance boost!
 
-A L2 access is 38 times faster than a memory access, a L3 is 3.5 times faster (having an app 3.5 times faster is something that many will be happy about, I'm sure!).
+Put it differently, compare to main memory access:
 
-So worrying about the JIT not being fast enough may not be the main reason, you can leverage thing yourself, improving your code!
+* A L1 access is 125 times faster.
+* A L2 access is 38 times faster.
+* A L3 is 3.5 times faster. Having an app 3.5 times faster is something that many will be happy about, I'm sure!
+
+So worrying about the JIT not being fast enough may not be the main reason, you can leverage things yourself by being aware of what the CPU needs to execute as fast as possible.
+
+### Being memory friendly, means being cache friendly!
+
+There are a lot of good, in-depth articles/posts out there explaining why the CPU cache is important and how to work with it. This topic can get really complex very quickly, here, again, we will try to keep things simple.
+
+![CPU Info](http://loicbaumann.fr/wp-content/uploads/2018/03/CPU-Z.png)
+
+Few explanations/remarks:
+
+* Level 1 cache has dedicated cache for Data and Instruction (running assembly code)
+* `4 x 32KBytes`, here the '4 x' means we've a dedicate cache for each Core of the CPU: that's right L1/L2 have dedicated caches for each CPU Core. '32KBytes' is the size of the cache for one CPU Core.
+* `8-way` is about ['associativity'](https://en.wikipedia.org/wiki/CPU_cache#Associativity), which is a rather complex topic. Follow the link is you're curious and brave!
+* Data in a CPU Cache are organized by 'Line' (or Block), which are now most of the time 64 bytes wide. It means that whatever you do, when a data is loaded in the cache, it will fill an entierly Line of 64 bytes and the starting address will also be a multiple of 64 bytes (hence the importance of allocating memory with a starting address being a multiple of 64 bytes).
+
+More about [how a CPU cache works](https://en.wikipedia.org/wiki/CPU_cache).
 
 ### Enough of the theory, how could we make things faster in .net?
 

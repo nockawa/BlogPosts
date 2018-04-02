@@ -1,28 +1,37 @@
+---
+title: Working with struct
+categories: .net core,Dev
+weblogName: Loic Baumann's blo
+postId: 688
+postStatus: draft
+dontInferFeaturedImage: true
+postDate: 2018-04-02T18:24:33.1521443+02:00
+---
 ### Introduction
 
 Before C# 7.2 and .net core 2.1, you could improve .net performance with a good dose of conscious effort and relying on code that would not necessarily be nice to look at (and certainly maintainable). Microsoft made several improvements to make sure that you could design & write faster code, not at the sake of the good practices.
 
 #### Struct, struct and more struct!
 
-Get rid of this reflex of choosing `class` every time you design a new type.
+It is important to get rid of this reflex of choosing the `class` keyword every time you design a new type.
 
 Question yourself about if object-oriented programming is really necessary or if you should use another paradigm that would be more data driven.
 
-Using `struct` have game changing advantages: **You don't directly allocate on the heap, so you're not using the GC (not directly though).**
+Using `struct` have game changing advantages: **You don't directly allocate on the heap, so you're not using the GC** (not directly though).
 
-You can design a memory friendly layout for your type, avoiding many memory indirections that would increase the chances of cache miss! 
+You can design a memory friendly layout for your type, avoiding many memory indirections that would increase the chances of cache miss!
 
-Before C# 7.2, relying on `struct` were not necessarily a performance win, the reason was that each time you passed/return a `struct` based object: **a copy would be made**, on the stack, but still, a copy is a copy: it takes time! 
+Before C# 7.2, relying on `struct` were not necessarily a performance win, the reason was that each time you passed/return a `struct` based object: **a copy would be made**, on the stack, but still a copy is a copy: it takes time!
 
 It is now possible to pass/return `struct` based objects using reference to the initial object: avoiding an unnecessary and costly copy.
 
 Two know languages keywords `ref` and `in` enable many new patterns to speed things up!
 
-Relying on `struct` will also enable a linear memory layout for your data, making things way more CPU cache friendly. 
+Relying on `struct` will also enable a linear memory layout for your data, making things way more CPU cache friendly.
 
 Let's take an example:
 
-```
+```csharp
 public class A
 {
     public int val1;
@@ -53,7 +62,7 @@ Things to note:
 
 Let's make the following changes: we no longer use `class`, but `struct` instead.
 
-```
+```csharp
 public struct A
 {
     public int val1;
@@ -75,9 +84,13 @@ var data = new B[256];
 
 Ok, this is a naive explanation, internally .net will make things a bit different, but you get the point:
 
-* We now have **1** object allocated on the heap (`data`), which allocate a surface block to sequentially store all instances of `B`.
-* `B` no longer reference other objects: the `a1` and `a2` fields are **part of `B`**, not referenced by `B`. 
+* We now have **1** object allocated on the heap (`data`), which allocates **a continuous memory surface block** to sequentially store all instances of `B`.
+* `B` no longer reference other objects: the `a1` and `a2` fields are **part of `B`**, not referenced by `B`.
 
 A `foreach` on the `class` version with access to all the fields would have lead to deal with 769 distinct memory locations, with a CPU that would have hard time to prefetch to reduce the time to access the data.
 
 A `foreach` on the `struct` version with access to all the fields would be as fast as it could be: there's one memory block, the CPU understand pretty quickly that we're **sequentially** accessing the data, so the prefetch and cache loads are very efficient, because everything was design for this!
+
+![](ClassDiagram.png)
+
+![](StructDiagram.png)

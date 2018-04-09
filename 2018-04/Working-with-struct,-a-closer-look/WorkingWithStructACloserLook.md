@@ -7,7 +7,7 @@ postDate: 2018-04-03T08:25:34.9379784+02:00
 ### Blog Post series
 
 1. [How to optimize .net development using .net core 2.1 and C# 7.2](http://loicbaumann.fr/en/2018/04/02/how-to-optimize-net-development-using-net-core-2-1-and-c-7-2/), introduction to fundamental concepts
-2. Introduction of working with `struct`.
+2. [Introduction of working with `struct`.](http://loicbaumann.fr/en/2018/04/04/introduction-of-working-with-struct/)
 3. Working with `struct`, a closer look (this post)
 
 ### Introduction
@@ -93,6 +93,8 @@ public partial struct Vector3
     }
 }
 ```
+
+This is not the place of in-depth explanation about how the `in` keyword behaves, but be aware that you may not always get a performance improvement because of the so-called [defensive copy](https://blogs.msdn.microsoft.com/seteplia/2018/03/07/the-in-modifier-and-the-readonly-structs-in-c/) mechanism.
 
 ### The `RefArray<T>` class
 
